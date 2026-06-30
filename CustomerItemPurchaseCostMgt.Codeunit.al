@@ -38,13 +38,14 @@ codeunit 50101 "Customer Item Purchase Cost Mgt"
         ItemLedgerEntry: Record "Item Ledger Entry";
         TotalPurchaseCost: Decimal;
     begin
+        if not ItemLedgerEntry.SetCurrentKey("Item No.", "Entry Type") then
+            ItemLedgerEntry.SetCurrentKey("Item No.");
+
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
 
-        if ItemLedgerEntry.FindSet() then
-            repeat
-                TotalPurchaseCost += ItemLedgerEntry."Cost Amount (Actual)";
-            until ItemLedgerEntry.Next() = 0;
+        ItemLedgerEntry.CalcSums("Cost Amount (Actual)");
+        TotalPurchaseCost := ItemLedgerEntry."Cost Amount (Actual)";
 
         exit(TotalPurchaseCost);
     end;
